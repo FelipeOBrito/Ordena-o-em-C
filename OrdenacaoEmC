@@ -1,0 +1,300 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+
+// ALGORITMOS DE ORDENAÇÃO
+
+// 1. Bubble Sort
+void bubbleSort(int v[], int n) {
+    int i, j, temp;
+    for (i = 0; i < n - 1; i++) {
+        for (j = 0; j < n - i - 1; j++) {
+            if (v[j] > v[j + 1]) {
+                temp = v[j];
+                v[j] = v[j + 1];
+                v[j + 1] = temp;
+            }
+        }
+    }
+}
+
+// 2. Insertion Sort
+void insertionSort(int v[], int n) {
+    int i, j, chave;
+    for (i = 1; i < n; i++) {
+        chave = v[i];
+        j = i - 1;
+        while (j >= 0 && v[j] > chave) {
+            v[j + 1] = v[j];
+            j = j - 1;
+        }
+        v[j + 1] = chave;
+    }
+}
+
+// 3. Selection Sort
+void selectionSort(int v[], int n) {
+    int i, j, min_idx, temp;
+    for (i = 0; i < n - 1; i++) {
+        min_idx = i;
+        for (j = i + 1; j < n; j++) {
+            if (v[j] < v[min_idx]) {
+                min_idx = j;
+            }
+        }
+        temp = v[i];
+        v[i] = v[min_idx];
+        v[min_idx] = temp;
+    }
+}
+
+// 4. Merge Sort
+void merge(int v[], int inicio, int meio, int fim) {
+    int n1 = meio - inicio + 1;
+    int n2 = fim - meio;
+    int *L = (int *)malloc(n1 * sizeof(int));
+    int *R = (int *)malloc(n2 * sizeof(int));
+    int i, j, k;
+
+    for (i = 0; i < n1; i++) L[i] = v[inicio + i];
+    for (j = 0; j < n2; j++) R[j] = v[meio + 1 + j];
+
+    i = 0; j = 0; k = inicio;
+    while (i < n1 && j < n2) {
+        if (L[i] <= R[j]) {
+            v[k++] = L[i++];
+        } else {
+            v[k++] = R[j++];
+        }
+    }
+    while (i < n1) v[k++] = L[i++];
+    while (j < n2) v[k++] = R[j++];
+
+    free(L); free(R);
+}
+
+void mergeSort(int v[], int inicio, int fim) {
+    if (inicio < fim) {
+        int meio = inicio + (fim - inicio) / 2;
+        mergeSort(v, inicio, meio);
+        mergeSort(v, meio + 1, fim);
+        merge(v, inicio, meio, fim);
+    }
+}
+
+// 5. Quick Sort (Função auxiliar para particionar)
+int partition(int v[], int low, int high) {
+    int pivot = v[high]; 
+    int i = (low - 1);
+    int j, temp;
+    
+    for (j = low; j <= high - 1; j++) {
+        if (v[j] < pivot) {
+            i++;
+            temp = v[i];
+            v[i] = v[j];
+            v[j] = temp;
+        }
+    }
+    temp = v[i + 1];
+    v[i + 1] = v[high];
+    v[high] = temp;
+    return (i + 1);
+}
+
+void quickSort(int v[], int low, int high) {
+    if (low < high) {
+        int pi = partition(v, low, high);
+        quickSort(v, low, pi - 1);
+        quickSort(v, pi + 1, high);
+    }
+}
+
+// FUNÇÕES DE MANIPULAÇÃO DE ARQUIVO E LÓGICA DO PROGRAMA
+
+// Conta quantos números existem no arquivo para alocação dinâmica
+int contarElementosArquivo(const char *nomeArquivo) {
+    FILE *f = fopen(nomeArquivo, "r");
+    if (!f) return 0;
+
+    int count = 0, temp;
+    while (fscanf(f, "%d", &temp) == 1) {
+        count++;
+    }
+    fclose(f);
+    return count;
+}
+
+// 1) Cria e grava um arquivo com dados numéricos
+void criarArquivoDados(const char *nomeArquivo) {
+    FILE *f = fopen(nomeArquivo, "w");
+    if (!f) {
+        printf("Erro ao criar o arquivo!\n");
+        return;
+    }
+
+    int qtd, num;
+    printf("\nQuantos numeros deseja inserir no arquivo original? ");
+    scanf("%d", &qtd);
+
+    for (int i = 0; i < qtd; i++) {
+        printf("Digite o %do numero: ", i + 1);
+        scanf("%d", &num);
+        fprintf(f, "%d\n", num);
+    }
+
+    fclose(f);
+    printf("-> Dados salvos com sucesso em '%s'.\n", nomeArquivo);
+}
+
+// 5) Permite alterar um valor dentro do arquivo
+void alterarValorArquivo(const char *nomeArquivo) {
+    int n = contarElementosArquivo(nomeArquivo);
+    if (n == 0) {
+        printf("\nO arquivo '%s' esta vazio ou não existe. Crie-o primeiro.\n", nomeArquivo);
+        return;
+    }
+
+    // Leitura dos dados atuais
+    int *v = (int *)malloc(n * sizeof(int));
+    FILE *f = fopen(nomeArquivo, "r");
+    for (int i = 0; i < n; i++) {
+        fscanf(f, "%d", &v[i]);
+    }
+    fclose(f);
+
+    // Mostra os valores e posições para o usuário
+    printf("\nValores atuais no arquivo:\n");
+    for (int i = 0; i < n; i++) {
+        printf("[%d]: %d\n", i, v[i]);
+    }
+
+    int indice, novoValor;
+    printf("\nDigite a posicao (indice entre 0 e %d) do valor que deseja alterar: ", n - 1);
+    scanf("%d", &indice);
+
+    if (indice < 0 || indice >= n) {
+        printf("Índice invalido!\n");
+        free(v);
+        return;
+    }
+
+    printf("O valor atual na posicao [%d] e %d. Digite o novo valor: ", indice, v[indice]);
+    scanf("%d", &novoValor);
+    v[indice] = novoValor;
+
+    // Salva o vetor modificado de volta no arquivo de dados
+    f = fopen(nomeArquivo, "w");
+    for (int i = 0; i < n; i++) {
+        fprintf(f, "%d\n", v[i]);
+    }
+    fclose(f);
+    free(v);
+
+    printf("-> Valor alterado com sucesso! O arquivo '%s' foi atualizado.\n", nomeArquivo);
+}
+
+// 2, 3 e 4) Lê os dados, permite escolher o método, ordena e salva
+void processarEOrdenar(const char *arquivoEntrada, const char *arquivoSaida) {
+    int n = contarElementosArquivo(arquivoEntrada);
+    if (n == 0) {
+        printf("\nArquivo '%s' nao encontrado ou vazio. Crie-o primeiro.\n", arquivoEntrada);
+        return;
+    }
+
+    // 2) Ler esses dados do arquivo
+    int *v = (int *)malloc(n * sizeof(int));
+    FILE *fIn = fopen(arquivoEntrada, "r");
+    for (int i = 0; i < n; i++) {
+        fscanf(fIn, "%d", &v[i]);
+    }
+    fclose(fIn);
+
+    // 3) Escolher o tipo de ordenação
+    int opcao;
+    printf("\nEscolha o algoritmo de ordenacao:\n");
+    printf("1 - Bubble Sort\n");
+    printf("2 - Insertion Sort\n");
+    printf("3 - Selection Sort\n");
+    printf("4 - Merge Sort\n");
+    printf("5 - Quick Sort\n");
+    printf("Opcao: ");
+    scanf("%d", &opcao);
+
+    switch (opcao) {
+        case 1: bubbleSort(v, n); break;
+        case 2: insertionSort(v, n); break;
+        case 3: selectionSort(v, n); break;
+        case 4: mergeSort(v, 0, n - 1); break;
+        case 5: quickSort(v, 0, n - 1); break;
+        default:
+            printf("Opcao invalida! Cancelando...\n");
+            free(v);
+            return;
+    }
+
+    // 4) Ordene os dados e salve o resultado em um novo arquivo
+    FILE *fOut = fopen(arquivoSaida, "w");
+    if (!fOut) {
+        printf("Erro ao criar arquivo de saida!\n");
+        free(v);
+        return;
+    }
+
+    printf("\nDados ordenados:\n");
+    for (int i = 0; i < n; i++) {
+        printf("%d ", v[i]);
+        fprintf(fOut, "%d\n", v[i]);
+    }
+    printf("\n");
+    fclose(fOut);
+    free(v);
+
+    printf("-> Dados ordenados e salvos com sucesso em '%s'.\n", arquivoSaida);
+}
+
+// MAIN - MENU PRINCIPAL
+
+int main() {
+    int opcaoMenu;
+    const char *arqEntrada = "dados.txt";
+    const char *arqSaida = "ordenado.txt";
+
+    do {
+        printf("\n=========================================\n");
+        printf("      MENU - ALGORITMOS DE ORDENACAO      \n");
+        printf("=========================================\n");
+        printf("1 - Criar arquivo de dados desordenados (%s)\n", arqEntrada);
+        printf("2 - Ler, Ordenar e Salvar no novo arquivo (%s)\n", arqSaida);
+        printf("3 - Alterar um valor no arquivo original e reordenar\n");
+        printf("0 - Sair\n");
+        printf("Escolha uma opcao: ");
+        scanf("%d", &opcaoMenu);
+
+        switch (opcaoMenu) {
+            case 1:
+                criarArquivoDados(arqEntrada);
+                break;
+            case 2:
+                processarEOrdenar(arqEntrada, arqSaida);
+                break;
+            case 3:
+                alterarValorArquivo(arqEntrada);
+                // Após alterar, podemos chamar automaticamente a reordenação
+                printf("\nVoce alterou um valor. Deseja reordenar e salvar agora? (1-Sim / 0-Nao): ");
+                int reordenar;
+                scanf("%d", &reordenar);
+                if (reordenar == 1) {
+                    processarEOrdenar(arqEntrada, arqSaida);
+                }
+                break;
+            case 0:
+                printf("Encerrando o programa...\n");
+                break;
+            default:
+                printf("Opcao invalida. Tente novamente!\n");
+        }
+    } while (opcaoMenu != 0);
+
+    return 0;
+}
