@@ -35,7 +35,7 @@ O usuário pode escolher entre 5 métodos clássicos de ordenação:
 
 Ao executar o programa, os seguintes arquivos serão manipulados/criados na mesma pasta do executável:
 
-* `main.c` (ou o nome que você der ao código fonte): Contém todo o código do programa.
+* `OrdenacaoEmC.c`: Contém todo o código-fonte do programa.
 * `dados.txt`: Arquivo gerado pelo programa contendo os números originais de entrada (um por linha).
 * `ordenado.txt`: Arquivo gerado pelo programa contendo a lista dos números após passarem pelo algoritmo de ordenação.
 
@@ -50,4 +50,4 @@ Você precisará de um compilador C instalado em sua máquina (como o **GCC**).
 
 1. **Clone o repositório:**
    ```bash
-   git clone [https://github.com/SEU_USUARIO/NOME_DO_REPOSITORIO.git](https://github.com/SEU_USUARIO/NOME_DO_REPOSITORIO.git)
+   git clone [https://github.com/FelipeOBrito/Ordena-o-em-C.git](https://github.com/FelipeOBrito/Ordena-o-em-C.git)
